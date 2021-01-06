@@ -1,5 +1,6 @@
 package api
 
+// ServerConfig contains configuration values needed for Server instance running
 type ServerConfig struct {
-	env string
+	Env string
 }

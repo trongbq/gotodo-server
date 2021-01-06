@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/trongbq/gotodo-server/internal/config"
 )
 
 type Server struct {
@@ -10,6 +11,14 @@ type Server struct {
 }
 
 func NewServer(conf ServerConfig) *Server {
+	// Set running mode for gin depends on server's env
+	if conf.Env == config.BetaEnv || conf.Env == config.ProdEnv {
+		gin.SetMode(gin.ReleaseMode)
+	} else if conf.Env == config.TestEnv {
+		gin.SetMode(gin.TestMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
 	router := gin.Default()
 
 	s := Server{
