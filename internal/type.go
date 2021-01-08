@@ -1,16 +1,18 @@
 package internal
 
+import "time"
+
 type User struct {
-	ID        int
-	Email     string
-	Username  string
-	CreatedAt time.time
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type TodoItem struct {
-	ID          int
+	ID          int64
 	Content     string
 	UserID      int
-	CreatedAt   time.time
-	CompletedAt time.time
+	CreatedAt   time.Time
+	CompletedAt time.Time
 }

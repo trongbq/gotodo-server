@@ -27,4 +27,6 @@ func (s Server) install() {
 	s.router.NoRoute(endpointNotFoundHandler)
 	// Used by monitoring service to check health of running server
 	s.router.GET("/monitor/check", healthCheckHandler)
+	s.router.POST("/api/users", s.RegisterUser)
+	s.router.GET("/api/users/current", s.GetCurrentUser)
 }

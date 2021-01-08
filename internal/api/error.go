@@ -26,3 +26,11 @@ type ErrorResponse struct {
 func (err *ErrorResponse) Error() string {
 	return fmt.Sprintf("%s: %s", err.Code, err.Message)
 }
+
+func newErrorResponse(code, msg string) ErrorResponse {
+	return ErrorResponse{
+		Code:      code,
+		Message:   msg,
+		Timestamp: time.Now(),
+	}
+}
