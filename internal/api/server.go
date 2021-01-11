@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/trongbq/gotodo-server/internal/config"
+	"net/http"
+
+	"github.com/go-chi/chi"
 	"github.com/trongbq/gotodo-server/internal/database"
 )
 
@@ -13,20 +14,12 @@ type ServerConfig struct {
 
 type Server struct {
 	conf   ServerConfig
-	router *gin.Engine
+	router *chi.Mux
 	db     *database.DB
 }
 
 func NewServer(conf ServerConfig, db *database.DB) *Server {
-	// Set running mode for gin depends on server's env
-	if conf.Env == config.BetaEnv || conf.Env == config.ProdEnv {
-		gin.SetMode(gin.ReleaseMode)
-	} else if conf.Env == config.TestEnv {
-		gin.SetMode(gin.TestMode)
-	} else {
-		gin.SetMode(gin.DebugMode)
-	}
-	router := gin.Default()
+	router := chi.NewRouter()
 
 	s := Server{
 		conf:   conf,
@@ -39,6 +32,8 @@ func NewServer(conf ServerConfig, db *database.DB) *Server {
 	return &s
 }
 
-func (s Server) ListenAndServe() error {
-	return s.router.Run()
+// ServeHTTP is just a wrapper for router but it makes Server become normal Handler
+// It hides underlying logic of whichever router that Server are using
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
 }

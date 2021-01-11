@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/trongbq/gotodo-server/cmd/api/config"
 	"github.com/trongbq/gotodo-server/internal/api"
 	"github.com/trongbq/gotodo-server/internal/database"
@@ -19,8 +22,5 @@ func main() {
 		},
 		db,
 	)
-	err = server.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
+	log.Fatal(http.ListenAndServe(":8080", server))
 }

@@ -2,31 +2,29 @@ package api
 
 import (
 	"net/http"
-	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-chi/chi"
 )
 
-var (
-	endpointNotFoundHandler = func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, ErrorResponse{
-			Code:      ErrorCodeNotFound,
-			Message:   "Endpoint not found",
-			Timestamp: time.Now(),
-		})
-	}
+func (s *Server) endpointNotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	s.respond(w, r, http.StatusNotFound, newErrResp(ErrCodeNotFound, "Endpoint not found"))
+}
 
-	healthCheckHandler = func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"health": "OK",
-		})
+func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	type response struct {
+		Health string `json:"health"`
 	}
-)
+	s.respond(w, r, http.StatusOK, response{"OK"})
+}
 
+// install method handles routes registration and also middleware setup
 func (s Server) install() {
-	s.router.NoRoute(endpointNotFoundHandler)
+	s.router.NotFound(http.HandlerFunc(s.endpointNotFoundHandler))
 	// Used by monitoring service to check health of running server
-	s.router.GET("/monitor/check", healthCheckHandler)
-	s.router.POST("/api/users", s.RegisterUser)
-	s.router.GET("/api/users/current", s.GetCurrentUser)
+	s.router.Get("/monitor/check", http.HandlerFunc(s.healthCheckHandler))
+
+	s.router.Route("/api/users", func(r chi.Router) {
+		r.Get("/current", s.getCurrentUser)
+		r.Post("/", s.registerUser)
+	})
 }
