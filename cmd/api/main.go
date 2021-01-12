@@ -18,7 +18,8 @@ func main() {
 	}
 	server := api.NewServer(
 		api.ServerConfig{
-			Env: conf.Env,
+			Env:          conf.Env,
+			AuthTokenKey: conf.AuthTokenKey,
 		},
 		db,
 	)

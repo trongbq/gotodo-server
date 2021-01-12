@@ -4,27 +4,32 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/trongbq/gotodo-server/internal/api/auth"
 	"github.com/trongbq/gotodo-server/internal/database"
 )
 
 // ServerConfig contains configuration values needed for Server instance running
 type ServerConfig struct {
-	Env string
+	Env          string
+	AuthTokenKey string
 }
 
 type Server struct {
 	conf   ServerConfig
 	router *chi.Mux
 	db     *database.DB
+	auth   *auth.TokenIssuer
 }
 
 func NewServer(conf ServerConfig, db *database.DB) *Server {
 	router := chi.NewRouter()
+	auth := auth.NewTokenIssuer([]byte(conf.AuthTokenKey), "GoTodoServerIssuer")
 
 	s := Server{
 		conf:   conf,
 		router: router,
 		db:     db,
+		auth:   auth,
 	}
 	// Install config all routes in the api server
 	s.install()

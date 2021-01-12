@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/trongbq/gotodo-server/internal/api/middleware"
 )
 
 func (s *Server) endpointNotFoundHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,8 +24,13 @@ func (s Server) install() {
 	// Used by monitoring service to check health of running server
 	s.router.Get("/monitor/check", http.HandlerFunc(s.healthCheckHandler))
 
-	s.router.Route("/api/users", func(r chi.Router) {
-		r.Get("/current", s.getCurrentUser)
-		r.Post("/", s.registerUser)
+	// Public endpoints
+	s.router.Post("/api/users", s.registerUser)
+	s.router.Post("/api/signin", s.signIn)
+
+	// Secure endpoints
+	s.router.Group(func(r chi.Router) {
+		r.Use(middleware.Auth(s.auth))
+		r.Get("/api/users/current", s.getCurrentUser)
 	})
 }
