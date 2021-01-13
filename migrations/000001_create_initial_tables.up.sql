@@ -14,6 +14,6 @@ CREATE TABLE todo (
     `content` VARCHAR(300) NOT NULL,
     `user_id` INT NOT NULL,
     `created_at` TIMESTAMP NOT NULL,
-    `completed_at` TIMESTAMP NOT NULL,
+    `completed_at` TIMESTAMP NULL,
     PRIMARY KEY (`id`)
 );

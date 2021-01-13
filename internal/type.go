@@ -9,10 +9,11 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type TodoItem struct {
-	ID          int64
-	Content     string
-	UserID      int
-	CreatedAt   time.Time
-	CompletedAt time.Time
+type Todo struct {
+	ID          int64      `json:"id"`
+	Content     string     `json:"content"`
+	UserID      int64      `json:"userId"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	CompletedAt *time.Time `json:"completedAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
