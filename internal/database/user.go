@@ -16,7 +16,7 @@ type DBUser struct {
 
 func (db *DB) GetUser(ctx context.Context, id int64) (*internal.User, error) {
 	row := db.QueryRow(ctx, "SELECT id, email, username, created_at FROM user WHERE id = ?", id)
-	user, err := scan(row.Scan)
+	user, err := scanUser(row.Scan)
 	if err == sql.ErrNoRows {
 		return nil, ErrNoRecordFound
 	}
@@ -39,7 +39,7 @@ func (db *DB) GetUserIDAndPasswordByUsername(ctx context.Context, username strin
 	return id, password, err
 }
 
-func scan(scan func(dest ...interface{}) error) (*internal.User, error) {
+func scanUser(scan func(dest ...interface{}) error) (*internal.User, error) {
 	var u internal.User
 	err := scan(&u.ID, &u.Email, &u.Username, &u.CreatedAt)
 	if err != nil {

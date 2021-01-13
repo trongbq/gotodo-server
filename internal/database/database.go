@@ -36,6 +36,10 @@ func open(driverName string, uri string) (*DB, error) {
 	return &DB{db}, nil
 }
 
+func (db *DB) Query(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	return db.db.QueryContext(ctx, query, args...)
+}
+
 func (db *DB) QueryRow(ctx context.Context, query string, args ...interface{}) *sql.Row {
 	return db.db.QueryRowContext(ctx, query, args...)
 }

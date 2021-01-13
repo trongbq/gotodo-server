@@ -28,9 +28,16 @@ func (s Server) install() {
 	s.router.Post("/api/users", s.registerUser)
 	s.router.Post("/api/signin", s.signIn)
 
-	// Secure endpoints
+	// Secured endpoints
 	s.router.Group(func(r chi.Router) {
 		r.Use(middleware.Auth(s.auth))
 		r.Get("/api/users/current", s.getCurrentUser)
+		r.Route("/api/todos", func(r chi.Router) {
+			r.Get("/", s.getTodoList)
+			r.Post("/", s.addTodo)
+			r.Put("/{todoID:[0-9+]}", s.updateTodo)
+			r.Put("/{todoID:[0-9+]}/complete", s.completeTodo)
+			r.Delete("/{todoID:[0-9+]}", s.deleteTodo)
+		})
 	})
 }
