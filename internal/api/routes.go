@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/sirupsen/logrus"
 	"github.com/trongbq/gotodo-server/internal/api/middleware"
 )
 
@@ -39,5 +40,17 @@ func (s Server) install() {
 			r.Put("/{todoID:[0-9+]}/complete", s.completeTodo)
 			r.Delete("/{todoID:[0-9+]}", s.deleteTodo)
 		})
+	})
+
+	s.routerWalk()
+}
+
+func (s *Server) routerWalk() {
+	chi.Walk(s.router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		logrus.WithFields(logrus.Fields{
+			"method": method,
+			"route":  route,
+		}).Debug()
+		return nil
 	})
 }
