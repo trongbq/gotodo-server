@@ -2,7 +2,7 @@ FROM golang:1.15-alpine AS builder
 
 WORKDIR /src
 
-ENV GOPROXY="https://goproxy.io,direct"
+ENV GOPROXY=https://proxy.golang.org
 ENV GO111MODULE=on
 
 ADD go.mod go.sum /src/
