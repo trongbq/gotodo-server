@@ -6,12 +6,14 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
 	expirationDuration = 5 * time.Minute
 
-	ErrTokenInvalid = errors.New("Authentication token is invalid")
+	ErrTokenInvalid       = errors.New("auth token is invalid")
+	ErrTokenInvalidIssuer = errors.New("auth token is from different issuer")
 )
 
 type TokenIssuer struct {
@@ -42,7 +44,7 @@ func (i *TokenIssuer) Generate(userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(i.signedKey)
 	if err != nil {
-		return "", fmt.Errorf("JWT#SignedString error: %s", err)
+		return "", fmt.Errorf("jwt#SignedString error: %s", err)
 	}
 	return signedToken, nil
 }
@@ -52,8 +54,12 @@ func (i *TokenIssuer) Verify(token string) (Claims, error) {
 	_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 		return i.signedKey, nil
 	})
-	if err != nil || claims.Valid() != nil || claims.StandardClaims.Issuer != i.name {
+	if err != nil || claims.Valid() != nil {
+		log.Debugf("jwt#ParseWithClaims error %s", err)
 		return claims, ErrTokenInvalid
+	}
+	if claims.StandardClaims.Issuer != i.name {
+		return claims, ErrTokenInvalidIssuer
 	}
 	return claims, nil
 }
