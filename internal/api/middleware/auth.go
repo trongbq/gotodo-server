@@ -31,7 +31,7 @@ func Auth(tokenVerifier *auth.TokenIssuer) func(http.Handler) http.Handler {
 			claims, err := tokenVerifier.Verify(token)
 			if err != nil {
 				logger.Debugf("auth token can not be verified, error %s", err.Error())
-				respondAuthFail(w, "Authentication token is invalid")
+				respondAuthFail(w, err.Error())
 				return
 			}
 			logger.Debugf("authentication success for user %v", claims.UserID)

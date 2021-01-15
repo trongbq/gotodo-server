@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	expirationDuration = 5 * time.Minute
+	expirationDuration = 24 * time.Hour
 
-	ErrTokenInvalid       = errors.New("auth token is invalid")
-	ErrTokenInvalidIssuer = errors.New("auth token is from different issuer")
+	ErrTokenInvalid       = errors.New("token is invalid")
+	ErrTokenInvalidIssuer = errors.New("token is from different issuer")
+	ErrTokenExpired       = errors.New("token is expired")
 )
 
 type TokenIssuer struct {
@@ -49,17 +50,26 @@ func (i *TokenIssuer) Generate(userID int64) (string, error) {
 	return signedToken, nil
 }
 
-func (i *TokenIssuer) Verify(token string) (Claims, error) {
+func (i *TokenIssuer) Verify(token string) (*Claims, error) {
 	var claims Claims
 	_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 		return i.signedKey, nil
 	})
-	if err != nil || claims.Valid() != nil {
+	if err != nil {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				return nil, ErrTokenExpired
+			}
+		}
 		log.Debugf("jwt#ParseWithClaims error %s", err)
-		return claims, ErrTokenInvalid
+		return nil, ErrTokenInvalid
+	}
+	if claims.Valid() != nil {
+		log.Debugf("jwt#ParseWithClaims error %s", err)
+		return nil, ErrTokenInvalid
 	}
 	if claims.StandardClaims.Issuer != i.name {
-		return claims, ErrTokenInvalidIssuer
+		return nil, ErrTokenInvalidIssuer
 	}
-	return claims, nil
+	return &claims, nil
 }
