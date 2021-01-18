@@ -6,6 +6,7 @@ import (
 
 	"github.com/trongbq/gotodo-server/internal"
 	"github.com/trongbq/gotodo-server/internal/api/auth"
+	"github.com/trongbq/gotodo-server/internal/api/request"
 	"github.com/trongbq/gotodo-server/internal/database"
 )
 
@@ -16,16 +17,7 @@ type userRegisterRequest struct {
 }
 
 func (s *Server) getCurrentUser(w http.ResponseWriter, r *http.Request) {
-	userID, _ := r.Context().Value("UserID").(int64)
-	user, err := s.db.GetUser(r.Context(), userID)
-	if err == database.ErrNoRecordFound {
-		s.respond(w, r, http.StatusNotFound, newErrResp(ErrCodeNotFound, "Current user not found"))
-		return
-	}
-	if err != nil {
-		s.respond(w, r, http.StatusInternalServerError, newErrResp(ErrCodeInternalError, err.Error()))
-		return
-	}
+	user, _ := request.UserFrom(r.Context())
 	s.respond(w, r, http.StatusOK, user)
 }
 
