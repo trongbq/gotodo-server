@@ -33,7 +33,7 @@ func (s Server) install() {
 
 	// Secured endpoints
 	s.router.Group(func(r chi.Router) {
-		r.Use(middleware.Auth(s.auth))
+		r.Use(middleware.Auth(s.auth, s.db))
 		r.Get("/api/users/current", s.getCurrentUser)
 		r.Route("/api/todos", func(r chi.Router) {
 			r.Get("/", s.getTodoList)

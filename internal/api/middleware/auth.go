@@ -1,15 +1,16 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/trongbq/gotodo-server/internal/api/auth"
+	"github.com/trongbq/gotodo-server/internal/api/request"
+	"github.com/trongbq/gotodo-server/internal/database"
 )
 
-func Auth(tokenVerifier *auth.TokenIssuer) func(http.Handler) http.Handler {
+func Auth(tokenVerifier *auth.TokenIssuer, db *database.DB) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger := log.WithFields(log.Fields{
@@ -35,8 +36,19 @@ func Auth(tokenVerifier *auth.TokenIssuer) func(http.Handler) http.Handler {
 				return
 			}
 			logger.Debugf("authentication success for user %v", claims.UserID)
-			ctx := context.WithValue(r.Context(), "UserID", claims.UserID)
-			next.ServeHTTP(w, r.WithContext(ctx))
+
+			// Authentication success, get current user and set to context
+			user, err := db.GetUser(r.Context(), claims.UserID)
+			if err != nil {
+				if err == database.ErrNoRecordFound {
+					respondAuthFail(w, "User not found")
+					return
+				}
+				respondAuthFail(w, err.Error())
+				return
+			}
+
+			next.ServeHTTP(w, r.WithContext(request.WithUser(r.Context(), user)))
 		})
 	}
 }

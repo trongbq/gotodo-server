@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrNoRecordFound = errors.New("No record found")
+	ErrNoRecordFound = errors.New("no record found")
 )
 
 // DB type is a wrapper which provides external logging and others utilities for native sql.DB

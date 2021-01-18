@@ -35,7 +35,7 @@ func (db *DB) InsertTodo(ctx context.Context, t internal.Todo) (int64, error) {
 		user_id,
 		created_at,
 		updated_at
-	) VALUES(?,?,?)`, t.Content, t.UserID, t.CreatedAt, t.UpdatedAt)
+	) VALUES(?,?,?,?)`, t.Content, t.UserID, t.CreatedAt, t.UpdatedAt)
 	if err != nil {
 		return 0, err
 	}

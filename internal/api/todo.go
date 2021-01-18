@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/trongbq/gotodo-server/internal"
+	"github.com/trongbq/gotodo-server/internal/api/request"
 )
 
 const (
@@ -26,7 +27,7 @@ type todoListResponse struct {
 }
 
 func (s *Server) getTodoList(w http.ResponseWriter, r *http.Request) {
-	userID, _ := r.Context().Value("UserID").(int64)
+	user, _ := request.UserFrom(r.Context())
 
 	// Parse page and rowsPerPage query params from request
 	var err error
@@ -54,7 +55,7 @@ func (s *Server) getTodoList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check value of total todos
-	total, err := s.db.GetTodoCountByUser(r.Context(), userID)
+	total, err := s.db.GetTodoCountByUser(r.Context(), user.ID)
 	if err != nil {
 		s.respond(w, r, http.StatusInternalServerError, newErrResp(ErrCodeInternalError, err.Error()))
 		return
@@ -69,7 +70,7 @@ func (s *Server) getTodoList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get list of todos based on value of page and rowsPerPage
-	todos, err := s.db.GetTodosByUser(r.Context(), userID, (page-1)*rowsPerPage, rowsPerPage)
+	todos, err := s.db.GetTodosByUser(r.Context(), user.ID, (page-1)*rowsPerPage, rowsPerPage)
 	if err != nil {
 		s.respond(w, r, http.StatusInternalServerError, newErrResp(ErrCodeInternalError, err.Error()))
 		return
@@ -88,10 +89,10 @@ func (s *Server) addTodo(w http.ResponseWriter, r *http.Request) {
 		s.respond(w, r, http.StatusBadRequest, newErrResp(ErrCodeBadRequest, err.Error()))
 		return
 	}
-	userID, _ := r.Context().Value("UserID").(int64)
+	user, _ := request.UserFrom(r.Context())
 	todo := internal.Todo{
 		Content:   req.Content,
-		UserID:    userID,
+		UserID:    user.ID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
