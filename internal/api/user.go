@@ -17,11 +17,14 @@ type userRegisterRequest struct {
 }
 
 func (s *Server) getCurrentUser(w http.ResponseWriter, r *http.Request) {
+	log, _ := request.LogFrom(r.Context())
 	user, _ := request.UserFrom(r.Context())
+	log.Debugf("Get current user with id: %v", user.ID)
 	s.respond(w, r, http.StatusOK, user)
 }
 
 func (s *Server) registerUser(w http.ResponseWriter, r *http.Request) {
+	log, _ := request.LogFrom(r.Context())
 	var req userRegisterRequest
 	if err := s.decode(w, r, &req); err != nil {
 		s.respond(w, r, http.StatusBadRequest, newErrResp(ErrCodeBadRequest, err.Error()))
@@ -42,6 +45,7 @@ func (s *Server) registerUser(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.db.InsertUser(r.Context(), user)
 	if err != nil {
+		log.Errorf("Register user failed due to %s", err.Error())
 		s.respond(w, r, http.StatusInternalServerError, newErrResp(ErrCodeInternalError, err.Error()))
 		return
 	}
