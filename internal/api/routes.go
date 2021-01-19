@@ -4,8 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	chimiddleware "github.com/go-chi/chi/middleware"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/trongbq/gotodo-server/internal/api/middleware"
 )
 
@@ -22,7 +21,7 @@ func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 
 // install method handles routes registration and also middleware setup
 func (s Server) install() {
-	s.router.Use(chimiddleware.RequestID)
+	s.router.Use(middleware.Logging())
 	s.router.NotFound(http.HandlerFunc(s.endpointNotFoundHandler))
 	// Used by monitoring service to check health of running server
 	s.router.Get("/monitor/check", http.HandlerFunc(s.healthCheckHandler))
@@ -49,7 +48,7 @@ func (s Server) install() {
 
 func (s *Server) routerWalk() {
 	chi.Walk(s.router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		log.WithFields(log.Fields{
+		logrus.WithFields(logrus.Fields{
 			"method": method,
 			"route":  route,
 		}).Debug()
