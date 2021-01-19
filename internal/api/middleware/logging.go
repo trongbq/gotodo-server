@@ -27,7 +27,7 @@ func Logging() func(http.Handler) http.Handler {
 				"request":     r.RequestURI,
 				"requestTime": start.Format(time.RFC3339),
 				"latency":     end.Sub(start),
-			}).Debug()
+			}).Info()
 		})
 	}
 }
