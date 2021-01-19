@@ -121,7 +121,7 @@ func (s *Server) updateTodo(w http.ResponseWriter, r *http.Request) {
 	todoID, _ := strconv.ParseInt(chi.URLParam(r, "todoID"), 10, 64)
 	err := s.db.UpdateTodoContent(r.Context(), todoID, req.Content)
 	if err != nil {
-		log.Errorf("Can not update todo id %v, error %s", todoID)
+		log.Errorf("Can not update todo id %v, error %s", todoID, err)
 		s.respond(w, r, http.StatusInternalServerError, newErrResp(ErrCodeInternalError, err.Error()))
 	}
 	s.respond(w, r, http.StatusNoContent, nil)

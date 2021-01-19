@@ -19,7 +19,7 @@ type userRegisterRequest struct {
 func (s *Server) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	log, _ := request.LogFrom(r.Context())
 	user, _ := request.UserFrom(r.Context())
-	log.Debug("Get current user with id: %v", user.ID)
+	log.Debugf("Get current user with id: %v", user.ID)
 	s.respond(w, r, http.StatusOK, user)
 }
 
